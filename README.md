@@ -23,3 +23,7 @@ Parameter|Type|Description
 min|LONGINT|
 max|LONGINT|
 number|LONGINT|
+
+* Using ``std::mt19937`` on both platforms.
+
+* Using ``std::random_device`` to seed the [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister).
