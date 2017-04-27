@@ -20,8 +20,8 @@ number:=uniform_int_distribution (min;max)
 
 Parameter|Type|Description
 ------------|------------|----
-min|LONGINT|
-max|LONGINT|
+min|LONGINT|minimum potentially generated value 
+max|LONGINT|maximum potentially generated value 
 number|LONGINT|
 
 * Using ``std::mt19937`` on both platforms.
