@@ -1,1 +1,0 @@
-﻿{"name":"PRNG","id":20000,"commands":[{"theme":"MT19937","syntax":"uniform_int_distribution(&L;&L):L"}]}
