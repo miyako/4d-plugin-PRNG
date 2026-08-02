@@ -596,6 +596,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = Y69CWUC25B;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
