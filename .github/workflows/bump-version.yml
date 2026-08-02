@@ -1,6 +1,8 @@
-# Bumps MARKETING_VERSION in the Xcode project, commits it, and pushes a
-# "vX.Y.Z" tag. That tag push is what triggers release.yml - this workflow
-# does NOT build or release anything itself.
+# Bumps the project's version key in the Xcode project (MARKETING_VERSION if
+# present, falling back to CURRENT_PROJECT_VERSION for older-style projects
+# that predate the MARKETING_VERSION/CURRENT_PROJECT_VERSION split), commits
+# it, and pushes a "vX.Y.Z" tag. That tag push is what triggers release.yml -
+# this workflow does NOT build or release anything itself.
 #
 # Run it manually from the Actions tab whenever you're ready to cut a release.
 
@@ -36,17 +38,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: bump MARKETING_VERSION
+      - name: bump project version
         id: bump
         run: |
           set -euo pipefail
           PBXPROJ="${XCODE_PROJECT}/project.pbxproj"
 
-          CURRENT=$(grep -m1 'MARKETING_VERSION' "$PBXPROJ" | sed -E 's/.*MARKETING_VERSION = ([0-9]+\.[0-9]+\.[0-9]+);.*/\1/')
+          KEY="MARKETING_VERSION"
+          CURRENT=$(grep -m1 "$KEY" "$PBXPROJ" | sed -E "s/.*${KEY} = ([0-9]+\.[0-9]+\.[0-9]+);.*/\1/") || true
           if [ -z "$CURRENT" ]; then
-            echo "Could not find MARKETING_VERSION in $PBXPROJ" >&2
+            KEY="CURRENT_PROJECT_VERSION"
+            CURRENT=$(grep -m1 "$KEY" "$PBXPROJ" | sed -E "s/.*${KEY} = ([0-9]+\.[0-9]+\.[0-9]+);.*/\1/") || true
+          fi
+          if [ -z "$CURRENT" ]; then
+            echo "Could not find MARKETING_VERSION or CURRENT_PROJECT_VERSION in $PBXPROJ" >&2
             exit 1
           fi
+          echo "Using key: $KEY"
 
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
           case "${{ inputs.mode }}" in
@@ -57,7 +65,7 @@ jobs:
           NEW="${MAJOR}.${MINOR}.${PATCH}"
 
           echo "Bumping ${CURRENT} -> ${NEW}"
-          sed -i "s/MARKETING_VERSION = ${CURRENT};/MARKETING_VERSION = ${NEW};/g" "$PBXPROJ"
+          sed -i "s/${KEY} = ${CURRENT};/${KEY} = ${NEW};/g" "$PBXPROJ"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
