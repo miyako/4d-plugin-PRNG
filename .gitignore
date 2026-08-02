@@ -1,1 +1,5 @@
 build/*
+.vs/*
+Objs/*
+test/Plugins/PRNG.bundle/Contents/Windows64/PRNG.exp
+test/Plugins/PRNG.bundle/Contents/Windows64/PRNG.lib
