@@ -571,7 +571,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				OBJROOT = "$(SRCROOT)/build";
 				SDKROOT = macosx;
-				SYMROOT = "$(SRCROOT)/$(PRODUCT_NAME).4dbase/Plugins";
+				SYMROOT = "$(SRCROOT)/test/Plugins";
 			};
 			name = Development;
 		};
@@ -588,7 +588,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				OBJROOT = "$(SRCROOT)/build";
 				SDKROOT = macosx;
-				SYMROOT = "$(SRCROOT)/$(PRODUCT_NAME).4dbase/Plugins";
+				SYMROOT = "$(SRCROOT)/test/Plugins";
 			};
 			name = Deployment;
 		};
@@ -603,7 +603,7 @@
 				GCC_VERSION = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				SDKROOT = macosx;
-				SYMROOT = "$(SRCROOT)/$(PRODUCT_NAME).4dbase/Plugins";
+				SYMROOT = "$(SRCROOT)/test/Plugins";
 			};
 			name = Default;
 		};
