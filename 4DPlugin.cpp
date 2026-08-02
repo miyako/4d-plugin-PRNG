@@ -13,10 +13,15 @@
 #include "4DPlugin.h"
 
 #include <random>
-#include <iostream>
+#include <algorithm>
+#include <utility>
 
-static std::random_device rd;
-static std::mt19937 rng(rd());
+// thread_local: each calling thread gets its own independently-seeded engine,
+// so concurrent calls (manifest.json declares "threadSafe": true) never mutate
+// shared engine state without synchronization. Fixes the data race that existed
+// with a single process-wide `static std::mt19937 rng`.
+static thread_local std::random_device rd;
+static thread_local std::mt19937 rng(rd());
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params)
 {
@@ -30,7 +35,13 @@ void PluginMain(PA_long32 selector, PA_PluginParameters params)
 	}
 	catch(...)
 	{
-
+		// Ensure the host always receives a return value, even on an unexpected
+		// exception path, rather than leaving pResult unset (which could hang
+		// the caller if it blocks waiting for a return). Sentinel value: 0.
+		sLONG_PTR *pResult = (sLONG_PTR *)params->fResult;
+		C_LONGINT returnValue;
+		returnValue.setIntValue(0);
+		returnValue.setReturn(pResult);
 	}
 }
 
@@ -41,6 +52,17 @@ void CommandDispatcher (PA_long32 pProcNum, sLONG_PTR *pResult, PackagePtr pPara
 			// --- MT19937
 		case 1 :
 			uniform_int_distribution(pResult, pParams);
+			break;
+
+		default :
+			// Unrecognized selector: still write a defined value so the host
+			// never waits on an unset pResult (same rationale as the catch-all
+			// hardening in PluginMain).
+			{
+				C_LONGINT returnValue;
+				returnValue.setIntValue(0);
+				returnValue.setReturn(pResult);
+			}
 			break;
 
 	}
@@ -57,7 +79,12 @@ void uniform_int_distribution(sLONG_PTR *pResult, PackagePtr pParams)
 	Param1.fromParamAtIndex(pParams, 1);
 	Param2.fromParamAtIndex(pParams, 2);
 
-	std::uniform_int_distribution<int> uid(Param1.getIntValue(), Param2.getIntValue());
+	// std::uniform_int_distribution requires a <= b; if a caller passes them
+	// reversed (e.g. min > max), constructing it directly is undefined behavior.
+	// Normalize order defensively so any argument order from 4D is safe.
+	std::pair<int, int> bounds = std::minmax(Param1.getIntValue(), Param2.getIntValue());
+
+	std::uniform_int_distribution<int> uid(bounds.first, bounds.second);
 
 	returnValue.setIntValue(uid(rng));
 	returnValue.setReturn(pResult);
