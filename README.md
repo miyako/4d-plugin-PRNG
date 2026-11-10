@@ -5,6 +5,16 @@
 
 # 4d-plugin-PRNG
 
+## Native helper ownership
+
+The compiled but currently undispatched picture helpers release synchronous
+string arguments exactly once, retain picture outputs before clearing their
+argument owners, and interpret SDK charset conversion lengths as bytes.
+The exported scalar PRNG command and prebuilt binaries are unchanged.
+See the [bounded ownership audit and native regression](.github/tests/ownership-audit.md)
+for the complete wrapper inventory, exact SDK contracts, negative-control
+command, and platform/ownership limits.
+
 ## Manual source versioning and publication
 
 **Bump version** and **Build** are independent manual Actions. Select a branch in
